@@ -11,7 +11,7 @@ build_macos_aarch64:
 	rustup target install ${macos_aarch64}
 	cargo build --target=${macos_aarch64} --release
 
-build_linux_linux_x86_64:
+build_linux_x86_64:
 	rustup target install ${linux_x86_64}
 	cargo build --target=${linux_x86_64} --release
 
