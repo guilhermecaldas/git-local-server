@@ -1,0 +1,133 @@
+use dav_server::warp::dav_dir;
+use git2::{Repository, RepositoryInitMode, RepositoryInitOptions};
+use local_ip_address::local_ip;
+use std::{env, fs, net::SocketAddr, path::Path, process::exit};
+
+fn init_repo(path: &String) {
+    let mut options = RepositoryInitOptions::new();
+    let repo = match Repository::init_opts(
+        path,
+        options.bare(true).mode(RepositoryInitMode::SHARED_ALL),
+    ) {
+        Ok(repo) => repo,
+        Err(err) => {
+            eprintln!("Error initializing repository: {}", err.message());
+            exit(1);
+        }
+    };
+
+    let hooks_dir = repo.path().join("hooks");
+    let post_update_file = hooks_dir.join("post-update");
+    fs::write(post_update_file, "#!/bin/sh\nexec git update-server-info").unwrap();
+}
+
+async fn serve_repo(path: &str, port: &u16) {
+    let addr: SocketAddr = ([0, 0, 0, 0], *port).into();
+    let warpdav = dav_dir(path.to_string(), true, true);
+    warp::serve(warpdav).run(addr).await;
+}
+
+fn update_server_info(path: &str) {
+    let repo = Repository::open_bare(path).unwrap();
+    let repo_path = repo.path();
+    let info_dir = repo_path.join("info");
+
+    // Create info directory if it doesn't exist
+    fs::create_dir_all(&info_dir).unwrap();
+
+    // Update refs file
+    let refs_file = info_dir.join("refs");
+    let mut refs_content = String::new();
+    for reference in repo.references().unwrap() {
+        let reference = reference.unwrap();
+        if let Some(name) = reference.name() {
+            if let Some(target) = reference.target() {
+                refs_content.push_str(&format!("{}\t{}\n", target, name));
+            }
+        }
+    }
+    fs::write(refs_file, refs_content).unwrap();
+
+    // Update packs file
+    let packs_file = info_dir.join("packs");
+    let mut packs_content = String::new();
+    let pack_dir = repo_path.join("objects/pack");
+    if pack_dir.exists() {
+        for entry in fs::read_dir(pack_dir).unwrap() {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            if path.extension().map_or(false, |ext| ext == "pack") {
+                if let Some(name) = path.file_name() {
+                    packs_content.push_str(&format!("P {}\n", name.to_string_lossy()));
+                }
+            }
+        }
+    }
+    fs::write(packs_file, packs_content).unwrap();
+}
+
+fn parse_args(cmd: &String, val: &String, port: &mut u16, repo: &mut String) {
+    match cmd.as_str() {
+        "--repo" => {
+            *repo = val.to_string();
+        }
+        "--port" => {
+            *port = match val.parse() {
+                Ok(n) => n,
+                Err(_) => {
+                    eprintln!("Invalid value: \"{}\"", val);
+                    exit(1);
+                }
+            }
+        }
+        _ => {
+            eprintln!("Invalid parameter: \"{}\"", cmd);
+            exit(1);
+        }
+    }
+}
+
+fn show_help() {
+    println!("usage: [--repo <repository>] [--port <port>]\n");
+    println!("   --repo   Defines repository name. (defaults: demo.git)");
+    println!("   --port   Port to serve Git. (defaults: 5005)\n");
+    println!("eg.: git-local-server --repo my-app.git --port 5008");
+    exit(0);
+}
+
+#[tokio::main]
+async fn main() {
+    let args: Vec<String> = env::args().collect();
+    let mut port: u16 = 5005;
+    let mut repo = String::from("demo.git");
+
+    match args.len() {
+        1_usize => {
+            println!("Using default repository \"{}\" and port {}", &repo, &port);
+        }
+        3_usize => {
+            parse_args(&args[1], &args[2], &mut port, &mut repo);
+        }
+        5_usize => {
+            if args[1] == args[3] {
+                eprintln!("Parameters cannot be duplicated");
+                exit(1);
+            }
+            parse_args(&args[1], &args[2], &mut port, &mut repo);
+            parse_args(&args[3], &args[4], &mut port, &mut repo);
+        }
+        _ => {
+            show_help();
+        }
+    }
+
+    if !Path::new(&repo).exists() {
+        println!("Initializing repository {}", repo);
+        init_repo(&repo);
+    }
+
+    println!("Serving at:");
+    println!("http://{:?}:{}/{}", local_ip().unwrap(), port, repo);
+    update_server_info(&repo);
+    serve_repo(".", &port).await;
+}

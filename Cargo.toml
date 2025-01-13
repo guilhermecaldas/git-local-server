@@ -1,0 +1,18 @@
+[package]
+name = "git-local-server"
+version = "0.1.0"
+edition = "2021"
+authors = [
+    "Guilherme Caldas <gcaldas@chemis.tech>",
+]
+license = "MIT"
+
+[package.metadata.release]
+strip = true
+
+[dependencies]
+dav-server = { version = "0.7.0", features = ["warp-compat"] }
+git2 = "0.20.0"
+local-ip-address = "0.6.3"
+tokio = { version = "1.0", features = ["full"] }
+warp = "0.3.7"

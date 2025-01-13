@@ -1,6 +1,6 @@
 # Git Local Server
 
-Serves a Git bare repository over local LAN using `rclone` webdav server
+Serves a Git bare repository over local LAN using http server
 
 ## Getting started
 
