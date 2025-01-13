@@ -4,22 +4,34 @@ Serves a Git bare repository over local LAN using http server
 
 ## Getting started
 
-Install rclone by downloading from https://rclone.org/downloads/
+Install Rust by downloading from https://www.rust-lang.org
 
-## Serving
+## Build
 
-1. Place the script `serve-git.sh` in a directory that will hold your
-   repositories, like `repos/`.
-2. Copy the file `.env.sample` to `.env` and set your preferred repository name
-   and port
-3. Execute the script `./serve-git.sh`. It will create a repository whose name
-   is set in `REMOTE`, in the current directory, and serve it on the port
-   `PORT` (defaults to 5005)
-4. Clone your repository, eg.: `git clone http://yourhost:5005/repo-name.git repo-name`
+After installing Rust, execute by running:
+
+```sh
+cargo run ##
+```
+
+or
+
+```sh
+cargo run -- --repo <path/to/repository.gir> --port <port_number>
+```
+
+To build, use `make`:
+
+```sh
+make # to build all targets
+make <target_name> # eg. make build_linux_x86_64 to build a linux x86_64 target
+```
+
+The release targets will be statically built and output files generated onto
+`target/<platform>/release/git-local-server` (for Unix) or
+`target/<platform>/release/git-local-server.exe` (for Windows)
 
 ## Notes
 
-- This script was tested on MacOS Sequoia. For any bugs, report to
-  gcaldas@chemis.tech
 - Don't use as a public solution. The intention of this script is to serve
   locally in a private environment to private machines
