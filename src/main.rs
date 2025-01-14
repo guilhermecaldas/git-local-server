@@ -1,4 +1,4 @@
-use dav_server::warp::dav_dir;
+use dav_server::{fakels::FakeLs, localfs::LocalFs, warp::dav_handler, DavHandler};
 use git2::{Repository, RepositoryInitMode, RepositoryInitOptions};
 use local_ip_address::local_ip;
 use std::{env, fs, net::SocketAddr, path::Path, process::exit};
@@ -24,6 +24,12 @@ fn init_repo(path: &String) {
 async fn serve_repo(path: &str, port: &u16) {
     let addr: SocketAddr = ([0, 0, 0, 0], *port).into();
     let warpdav = dav_dir(path.to_string(), true, true);
+    let handler = DavHandler::builder()
+        .filesystem(LocalFs::new(path, true, false, cfg!(target_os = "macos")))
+        .locksystem(FakeLs::new())
+        .build_handler();
+
+    let warpdav = dav_handler(handler);
     warp::serve(warpdav).run(addr).await;
 }
 
