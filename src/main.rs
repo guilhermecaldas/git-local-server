@@ -108,13 +108,22 @@ async fn main() {
     let mut repo = String::from("demo.git");
 
     match args.len() {
-        1_usize => {
+        1 => {
             println!("Using default repository \"{}\" and port {}", &repo, &port);
         }
-        3_usize => {
+        2 => {
+            let param: &str = &args[1];
+            if vec!["--version", "-v"].contains(&param) {
+                show_version();
+                exit(0);
+            }
+            show_help();
+            exit(0);
+        }
+        3 => {
             parse_args(&args[1], &args[2], &mut port, &mut repo);
         }
-        5_usize => {
+        5 => {
             if args[1] == args[3] {
                 eprintln!("Parameters cannot be duplicated");
                 exit(1);
