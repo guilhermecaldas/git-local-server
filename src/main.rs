@@ -148,6 +148,31 @@ fn show_help() {
     exit(0);
 }
 
+/// Displays version information about the program.
+///
+/// # Effects
+/// Prints package name, version, operating system, and architecture information to stdout
+///
+/// # Example Output
+/// ```text
+/// git-local-server 1.0.0 linux_x86_64
+/// ```
+fn show_version() {
+    println!(
+        "{} {} {}_{}",
+        env!("CARGO_PKG_NAME"),
+        env!("CARGO_PKG_VERSION"),
+        env::consts::OS,
+        env::consts::ARCH
+    );
+}
+
+/// Main entry point for the Git server application.
+///
+/// # Effects
+/// - Processes command line arguments
+/// - Initializes repository if needed
+/// - Starts the Git server
 #[tokio::main]
 async fn main() {
     let args: Vec<String> = env::args().collect();
