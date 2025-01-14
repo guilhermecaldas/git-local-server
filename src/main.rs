@@ -3,6 +3,12 @@ use git2::{Repository, RepositoryInitMode, RepositoryInitOptions};
 use local_ip_address::local_ip;
 use std::{env, fs, net::SocketAddr, path::Path, process::exit};
 
+/// Initializes a new bare Git repository at the specified path.
+////// # Parameters
+/// * `path` - The path where the repository should be created
+////// # Effects
+/// - Creates a new bare Git repository
+/// - Sets up a post-update hook for server info updates
 fn init_repo(path: &String) {
     let mut options = RepositoryInitOptions::new();
     let repo = match Repository::init_opts(
@@ -21,9 +27,28 @@ fn init_repo(path: &String) {
     fs::write(post_update_file, "#!/bin/sh\nexec git update-server-info").unwrap();
 }
 
+/// Serves a Git repository using WebDAV protocol.
+///
+/// # Parameters
+/// * `path` - Path to the repository directory to serve via WebDAV. The path should be relative or
+///           absolute to the current working directory.
+/// * `port` - Port number to listen on for incoming WebDAV connections. Must be a valid port number
+///           between 1-65535.
+///
+/// # Effects
+/// - Binds to the specified port on all network interfaces (0.0.0.0)
+/// - Initializes a WebDAV handler with filesystem access and locking support
+/// - Uses LocalFs for filesystem operations with support for special macOS handling
+/// - Implements a fake locking system via FakeLs
+/// - Creates a warp HTTP server serving WebDAV requests
+/// - Blocks the current thread and handles requests asynchronously
+///
+/// # Examples
+/// ```
+/// serve_repo("./repo", &8080).await; // Serves from ./repo on port 8080
+/// ```
 async fn serve_repo(path: &str, port: &u16) {
     let addr: SocketAddr = ([0, 0, 0, 0], *port).into();
-    let warpdav = dav_dir(path.to_string(), true, true);
     let handler = DavHandler::builder()
         .filesystem(LocalFs::new(path, true, false, cfg!(target_os = "macos")))
         .locksystem(FakeLs::new())
@@ -33,6 +58,14 @@ async fn serve_repo(path: &str, port: &u16) {
     warp::serve(warpdav).run(addr).await;
 }
 
+/// Updates server information files for the Git repository.
+///
+/// # Parameters
+/// * `path` - Path to the bare Git repository
+///
+/// # Effects
+/// - Creates/updates refs file containing reference information
+/// - Creates/updates packs file containing pack information
 fn update_server_info(path: &str) {
     let repo = Repository::open_bare(path).unwrap();
     let repo_path = repo.path();
@@ -72,6 +105,16 @@ fn update_server_info(path: &str) {
     fs::write(packs_file, packs_content).unwrap();
 }
 
+/// Parses command line arguments and updates port and repository values.
+///
+/// # Parameters
+/// * `cmd` - The command line flag (--repo or --port)
+/// * `val` - The value associated with the flag
+/// * `port` - Mutable reference to port number
+/// * `repo` - Mutable reference to repository name
+///
+/// # Effects
+/// Updates port and repo values based on command line arguments
 fn parse_args(cmd: &String, val: &String, port: &mut u16, repo: &mut String) {
     match cmd.as_str() {
         "--repo" => {
@@ -93,6 +136,10 @@ fn parse_args(cmd: &String, val: &String, port: &mut u16, repo: &mut String) {
     }
 }
 
+/// Displays help information about program usage.
+///
+/// # Effects
+/// Prints usage information to stdout and exits the program
 fn show_help() {
     println!("usage: [--repo <repository>] [--port <port>]\n");
     println!("   --repo   Defines repository name. (defaults: demo.git)");
