@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand};
 use local_ip_address::local_ip;
 use std::{net::Ipv4Addr, process::exit};
 mod git_helper;
-use git_helper::{init_repo, list_repos, serve_repos, update_server_info};
+use git_helper::{init_repo, list_repos, serve_repos};
 
 #[derive(Parser, Debug)]
 #[command(version,about,long_about = None)]
@@ -56,7 +56,6 @@ async fn main() {
         Some(Commands::Init { repository }) => {
             println!("Initializing repository {}", repository);
             init_repo(&repository);
-            update_server_info(&repository);
         }
         None => {
             eprintln!("No command specified. Use --help for usage information.");
