@@ -1,6 +1,7 @@
 [package]
 name = "git-local-server"
-version = "2.0.0"
+description = "Initialize and serve local Git repositories"
+version = "2.1.0"
 edition = "2021"
 authors = [
     "Guilherme Caldas <gcaldas@chemis.tech>",
@@ -11,6 +12,7 @@ license = "MIT"
 strip = true
 
 [dependencies]
+clap = { version = "4.5.26", features = ["derive", "cargo"] }
 dav-server = { version = "0.7.0", features = ["warp-compat"] }
 git2 = "0.20.0"
 local-ip-address = "0.6.3"
