@@ -11,9 +11,9 @@ Install Rust by downloading from https://www.rust-lang.org
 After installing Rust, run by executing:
 
 ```sh
-cargo run
+cargo run -- init repo_name.git
 # or
-cargo run -- --repo <path/to/repository.git> --port <port_number>
+cargo run -- serve -p <port> -d <root_dir> -a <ipv4_addr>
 ```
 
 ## Build
@@ -28,6 +28,20 @@ make <target_name> # eg. make build_linux_x86_64 to build a Linux x86_64 target
 The release targets will be statically built and output files will be generated
 in `target/<platform>/release/git-local-server` (for Unix) or
 `target/<platform>/release/git-local-server.exe` (for Windows)
+
+## Install
+
+To install as a crate, just run:
+
+```sh
+cargo install
+```
+
+And then, it will be available on your path:
+
+```sh
+git-local-server serve
+```
 
 ## Notes
 
