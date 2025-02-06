@@ -21,7 +21,6 @@ cargo run -- serve -p <port> -d <root_dir> -a <ipv4_addr>
 To build, use `make`:
 
 ```sh
-make all # to build all targets
 make <target_name> # eg. make build_linux_x86_64 to build a Linux x86_64 target
 ```
 
