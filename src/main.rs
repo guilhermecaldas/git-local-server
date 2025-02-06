@@ -1,8 +1,9 @@
 use clap::{Parser, Subcommand};
+use git2::Repository;
 use local_ip_address::local_ip;
 use std::{net::Ipv4Addr, process::exit};
 mod git_helper;
-use git_helper::{init_repo, list_repos, serve_repos};
+use git_helper::{init_repo, list_repos, serve_repos, set_head};
 
 #[derive(Parser, Debug)]
 #[command(version,about,long_about = None)]
@@ -33,6 +34,16 @@ enum Commands {
         #[arg(value_name = "REPO_NAME", required = true)]
         repository: String,
     },
+    /// Sets the HEAD branch for a repository
+    SetHead {
+        /// Repository to set HEAD for
+        #[arg(value_name = "REPOSITORY", required = true)]
+        repository: String,
+
+        /// Branch name to set as HEAD
+        #[arg(value_name = "BRANCH", required = true)]
+        branch: String,
+    },
 }
 
 #[tokio::main]
@@ -55,7 +66,17 @@ async fn main() {
         },
         Some(Commands::Init { repository }) => {
             println!("Initializing repository {}", repository);
-            init_repo(&repository);
+            init_repo(&repository, None);
+            println!("Repository HEAD set to \"develop\"");
+            println!("To change HEAD, use set-head <REPOSITORY> <BRANCH>");
+        }
+        Some(Commands::SetHead { repository, branch }) => {
+            let repo = Repository::open_bare(repository).unwrap_or_else(|err| {
+                eprintln!("Error opening repository: {}", err.message());
+                exit(1);
+            });
+            set_head(&branch, repo);
+            println!("New HEAD set to {}", branch);
         }
         None => {
             eprintln!("No command specified. Use --help for usage information.");

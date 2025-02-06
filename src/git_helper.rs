@@ -8,16 +8,27 @@ use std::{
 };
 
 /// Initializes a new bare Git repository at the specified path.
-////// # Parameters
+///
+/// # Parameters
 /// * `path` - The path where the repository should be created
-////// # Effects
+/// * `head_branch` - Optional name of the initial HEAD branch (defaults to "develop")
+///
+/// # Effects
 /// - Creates a new bare Git repository
-/// - Sets up a post-update hook for server info updates
-pub fn init_repo(path: &str) {
+/// - Sets up repository configuration for HTTP access
+/// - Sets up post-update hook for server info updates
+/// - Configures repository to allow non-fast-forward updates and branch deletions
+///
+/// # Errors
+/// Exits with status code 1 if repository initialization fails
+pub fn init_repo(path: &str, head_branch: Option<&str>) {
     let mut options = RepositoryInitOptions::new();
     let repo = match Repository::init_opts(
         path,
-        options.bare(true).mode(RepositoryInitMode::SHARED_ALL),
+        options
+            .bare(true)
+            .mode(RepositoryInitMode::SHARED_ALL)
+            .initial_head(head_branch.unwrap_or("develop")),
     ) {
         Ok(repo) => repo,
         Err(err) => {
@@ -38,6 +49,22 @@ pub fn init_repo(path: &str) {
     let hooks_dir = repo.path().join("hooks");
     let post_update_file = hooks_dir.join("post-update");
     fs::write(post_update_file, "#!/bin/sh\nexec git update-server-info").unwrap();
+}
+
+/// Sets the HEAD reference of a Git repository to point to a specific branch
+///
+/// # Parameters
+/// * `branch` - The name of the branch to set as HEAD
+/// * `repo` - The Git repository to modify
+///
+/// # Effects
+/// Updates the repository's HEAD reference to point to the specified branch
+pub fn set_head(branch: &str, repo: Repository) {
+    let new_head = format!("refs/heads/{}", branch);
+    repo.set_head(new_head.as_str()).unwrap_or_else(|err| {
+        eprintln!("Error setting HEAD: {}", err.message());
+        exit(1);
+    });
 }
 
 /// Serves Git repositories using WebDAV protocol.
