@@ -34,7 +34,7 @@ in `target/<platform>/release/git-local-server` (for Unix) or
 To install as a crate, just run:
 
 ```sh
-cargo install
+cargo install --path .
 ```
 
 And then, it will be available on your path:
