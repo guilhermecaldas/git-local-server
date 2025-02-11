@@ -1,20 +1,25 @@
 [package]
 name = "git-local-server"
 description = "Initialize and serve local Git repositories"
-version = "2.2.0"
+version = "2.2.1"
 edition = "2021"
 authors = [
     "Guilherme Caldas <gcaldas@chemis.tech>",
 ]
 license = "MIT"
 
-[package.metadata.release]
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = 'abort'
 strip = true
 
 [dependencies]
+git2 = { version = "0.20.0", features = ["vendored-libgit2"] }
 clap = { version = "4.5.26", features = ["derive", "cargo"] }
 dav-server = { version = "0.7.0", features = ["warp-compat"] }
-git2 = "0.20.0"
 local-ip-address = "0.6.3"
 tokio = { version = "1.0", features = ["full"] }
 warp = "0.3.7"
+openssl = { version = "0.10.70", features = ["vendored"] }
