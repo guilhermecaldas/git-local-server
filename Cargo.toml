@@ -1,7 +1,7 @@
 [package]
 name = "git-local-server"
 description = "Initialize and serve local Git repositories"
-version = "2.2.1"
+version = "2.2.2"
 edition = "2021"
 authors = [
     "Guilherme Caldas <gcaldas@chemis.tech>",
