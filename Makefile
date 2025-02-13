@@ -26,7 +26,9 @@ bundle_macos_pkg:
 	-v target/${macos_aarch64}/release/git-local-server \
 	--strict --options=runtime --timestamp
 
-	cp -p target/${macos_aarch64}/release/git-local-server /tmp/gls
+	rm -rf target/bundle
+	mkdir -p target/bundle
+	cp -p target/${macos_aarch64}/release/git-local-server target/bundle/git-local-server
 
 	VERSION := $(shell cargo pkgid | cut -d# -f2)
 
