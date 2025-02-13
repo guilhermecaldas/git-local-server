@@ -3,7 +3,7 @@ use git2::Repository;
 use local_ip_address::local_ip;
 use std::{net::Ipv4Addr, process::exit};
 mod git_helper;
-use git_helper::{init_repo, list_repos, serve_repos, set_head};
+use git_helper::{init_repo, list_repos, serve_repos, set_head, update_server_info};
 
 #[derive(Parser, Debug)]
 #[command(version,about,long_about = None)]
@@ -67,6 +67,7 @@ async fn main() {
         Some(Commands::Init { repository }) => {
             println!("Initializing repository {}", repository);
             init_repo(&repository, None);
+            update_server_info(&repository);
             println!("Repository HEAD set to \"develop\"");
             println!("To change HEAD, use set-head <REPOSITORY> <BRANCH>");
         }

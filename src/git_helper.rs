@@ -51,6 +51,53 @@ pub fn init_repo(path: &str, head_branch: Option<&str>) {
     fs::write(post_update_file, "#!/bin/sh\nexec git update-server-info").unwrap();
 }
 
+/// Updates server information files for the Git repository.
+///
+/// # Parameters
+/// * `path` - Path to the bare Git repository
+///
+/// # Effects
+/// - Creates/updates refs file containing reference information
+/// - Creates/updates packs file containing pack information
+pub fn update_server_info(path: &str) {
+    let repo = Repository::open_bare(path).unwrap();
+    let repo_path = repo.path();
+    let info_dir = repo_path.join("info");
+
+    // Create info directory if it doesn't exist
+    fs::create_dir_all(&info_dir).unwrap();
+
+    // Update refs file
+    let refs_file = info_dir.join("refs");
+    let mut refs_content = String::new();
+    for reference in repo.references().unwrap() {
+        let reference = reference.unwrap();
+        if let Some(name) = reference.name() {
+            if let Some(target) = reference.target() {
+                refs_content.push_str(&format!("{}\t{}\n", target, name));
+            }
+        }
+    }
+    fs::write(refs_file, refs_content).unwrap();
+
+    // Update packs file
+    let packs_file = info_dir.join("packs");
+    let mut packs_content = String::new();
+    let pack_dir = repo_path.join("objects/pack");
+    if pack_dir.exists() {
+        for entry in fs::read_dir(pack_dir).unwrap() {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            if path.extension().map_or(false, |ext| ext == "pack") {
+                if let Some(name) = path.file_name() {
+                    packs_content.push_str(&format!("P {}\n", name.to_string_lossy()));
+                }
+            }
+        }
+    }
+    fs::write(packs_file, packs_content).unwrap();
+}
+
 /// Sets the HEAD reference of a Git repository to point to a specific branch
 ///
 /// # Parameters
