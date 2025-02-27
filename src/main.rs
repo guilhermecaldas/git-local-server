@@ -1,7 +1,8 @@
 use clap::{Parser, Subcommand};
 use git2::Repository;
+use indicatif::{FormattedDuration, ProgressBar, ProgressStyle};
 use local_ip_address::local_ip;
-use std::{net::Ipv4Addr, process::exit};
+use std::{net::Ipv4Addr, ops::SubAssign, process::exit, time::Duration};
 mod git_helper;
 use git_helper::{init_repo, list_repos, serve_repos, set_head, update_server_info};
 
@@ -27,6 +28,10 @@ enum Commands {
         /// IPv4 address. Set to 127.0.0.1 to serve only localhost
         #[arg(short, long, value_name = "ADDR", default_value_t= Ipv4Addr::from([0,0,0,0]))]
         addr: Ipv4Addr,
+
+        /// Disable server timeout. (not recommended)
+        #[arg(long, value_name = "TIMEOUT_DISABLED", default_value_t = false)]
+        no_timeout: bool,
     },
     /// Initializes a Git repository in the specified path
     Init {
@@ -51,11 +56,45 @@ async fn main() {
     let args = Args::parse();
 
     match args.command {
-        Some(Commands::Serve { dir, port, addr }) => match list_repos(&dir) {
+        Some(Commands::Serve {
+            dir,
+            port,
+            addr,
+            no_timeout,
+        }) => match list_repos(&dir) {
             Ok(repos) => {
                 println!("Serving repositories:");
                 for repo in repos {
                     println!("http://{:?}:{}/{}", local_ip().unwrap(), port, repo);
+                }
+
+                // By default, enable session timeout to avoid leaving the server open
+                if !no_timeout {
+                    tokio::spawn(async move {
+                        let timeout = 60 * 5;
+                        let mut duration = Duration::from_secs(timeout);
+
+                        let pb = ProgressBar::new(timeout);
+
+                        pb.set_style(
+                            ProgressStyle::default_bar()
+                                .template("\nEnding session in {msg} [{bar:20.yellow}]")
+                                .unwrap()
+                                .progress_chars("#-"),
+                        );
+
+                        pb.set_message(FormattedDuration(duration).to_string());
+                        pb.set_position(timeout);
+
+                        for _ in (0..timeout).rev() {
+                            tokio::time::sleep(Duration::from_secs(1)).await;
+                            duration.sub_assign(Duration::from_secs(1));
+                            pb.set_message(FormattedDuration(duration).to_string());
+                            pb.dec(1);
+                        }
+                        println!("Server session expired");
+                        exit(0)
+                    });
                 }
                 serve_repos(&dir, &addr, &port).await;
             }
