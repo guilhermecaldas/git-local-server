@@ -21,7 +21,7 @@ build_windows_x86_64:
 	rustup target install ${windows_x86_64}
 	cargo build --target=${windows_x86_64} --release
 
-bundle_macos_pkg:
+bundle_macos_pkg: build_macos_aarch64
 	codesign --force -s "$(DEVELOPER_ID_APPLICATION)" \
 	-v target/${macos_aarch64}/release/git-local-server \
 	--strict --options=runtime --timestamp
