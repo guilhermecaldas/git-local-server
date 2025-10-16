@@ -18,11 +18,18 @@ cargo run -- serve -p <port> -d <root_dir> -a <ipv4_addr>
 
 ## Build
 
-To build, use `make`:
+To build, use `just`:
 
 ```sh
-make <target_name> # eg. make build_linux_x86_64 to build a Linux x86_64 target
+just <recipe_name> # e.g. just build-linux-x86_64 to build a Linux x86_64 target
 ```
+
+Available build recipes:
+- `just build-linux-aarch64` - Build for Linux aarch64 (ARM64)
+- `just build-linux-x86_64` - Build for Linux x86_64
+- `just build-macos-aarch64` - Build for macOS aarch64 (Apple Silicon)
+- `just build-macos-x86_64` - Build for macOS x86_64 (Intel)
+- `just build-windows-x86_64` - Build for Windows x86_64
 
 The release targets will be statically built and output files will be generated
 in `target/<platform>/release/git-local-server` (for Unix) or
