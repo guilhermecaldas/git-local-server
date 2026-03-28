@@ -8,7 +8,7 @@ license = "BSD-2-Clause"
 [dependencies]
 clap = { version = "4.5.26", features = ["cargo", "derive"] }
 dav-server = { version = "0.11.0", features = ["warp-compat"] }
-git2 = { version = "0.20.0", features = ["vendored-libgit2"] }
+gix = "0.81.0"
 indicatif = "0.18.4"
 local-ip-address = "0.6.3"
 openssl = { version = "0.10.70", features = ["vendored"] }
@@ -21,3 +21,6 @@ strip = true
 lto = true
 panic = "abort"
 codegen-units = 1
+
+[dev-dependencies]
+tempfile = "3.27.0"
