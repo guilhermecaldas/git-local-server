@@ -2,6 +2,10 @@
 
 Serves a Git bare repository over local LAN using an HTTP server
 
+> [!WARNING]
+> Don't use as a public solution. The intention of this script is to serve files
+> locally in a private environment to private machines
+
 ## Getting started
 
 Install Rust by downloading from https://www.rust-lang.org
@@ -48,8 +52,3 @@ And then, it will be available on your path:
 ```sh
 git-local-server serve
 ```
-
-## Notes
-
-Don't use as a public solution. The intention of this script is to serve files
-locally in a private environment to private machines
