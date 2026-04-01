@@ -1,6 +1,6 @@
 [package]
 name = "git-local-server"
-version = "2.3.2"
+version = "2.4.0"
 edition = "2024"
 description = "Initialize and serve local Git repositories"
 license = "BSD-2-Clause"
@@ -15,12 +15,12 @@ openssl = { version = "0.10.70", features = ["vendored"] }
 tokio = { version = "1.0", features = ["full"] }
 warp = "0.3.7"
 
+[dev-dependencies]
+tempfile = "3.27.0"
+
 [profile.release]
 opt-level = 3
 strip = true
 lto = true
 panic = "abort"
 codegen-units = 1
-
-[dev-dependencies]
-tempfile = "3.27.0"
