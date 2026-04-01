@@ -5,7 +5,7 @@ use std::net::Ipv4Addr;
 #[command(version,about,long_about = None)]
 pub struct Args {
     #[command(subcommand)]
-    pub(crate) command: Option<Commands>,
+    pub(crate) command: Commands,
 }
 
 #[derive(Subcommand, Debug)]

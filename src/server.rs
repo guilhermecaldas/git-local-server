@@ -19,7 +19,7 @@ pub async fn serve_repositories(path: &str, addr: &Ipv4Addr, port: &u16) {
             path,
             true,
             false,
-            cfg!(target_os = "macos"),
+            cfg!(any(target_os = "macos", target_os = "windows")),
         ))
         .locksystem(fakels::FakeLs::new())
         .build_handler();

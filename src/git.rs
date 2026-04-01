@@ -58,10 +58,16 @@ pub fn init_bare_repository(directory: &Path) -> Result<gix::Repository, Box<dyn
     config.write_to(&mut file)?;
 
     // Copy the post-update hook
-    fs::copy(
-        repo_path.join("hooks/post-update.sample"),
-        repo_path.join("hooks/post-update"),
-    )?;
+    let dest_hook = repo_path.join("hooks/post-update");
+    fs::copy(repo_path.join("hooks/post-update.sample"), &dest_hook)?;
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let mut perms = fs::metadata(&dest_hook)?.permissions();
+        perms.set_mode(0o755);
+        fs::set_permissions(&dest_hook, perms)?;
+    }
 
     fs::File::create_new(repo_path.join("info/refs"))?;
 
