@@ -26,7 +26,8 @@ use std::{
 /// # Arguments
 ///
 /// * `directory` - A `Path` to the directory where the bare repository should be initialized.
-///                 This directory will be created if it doesn't exist.
+///
+/// This directory will be created if it doesn't exist.
 ///
 /// # Returns
 ///

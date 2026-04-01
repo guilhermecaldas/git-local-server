@@ -10,8 +10,9 @@ use std::{ops::SubAssign, process::exit, time::Duration};
 /// # Arguments
 ///
 /// * `no_timeout` - A boolean flag. If `true`, the session timeout will be disabled.
-///                  If `false`, the session timeout will be enabled and the timer
-///                  will be displayed.
+///
+/// If `false`, the session timeout will be enabled and the timer
+/// will be displayed.
 pub fn display_timer(no_timeout: bool) {
     // By default, enable session timeout to avoid leaving the server open
     if !no_timeout {

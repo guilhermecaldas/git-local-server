@@ -20,7 +20,7 @@ async fn main() {
         }) => match git::list_bare_repositories(Path::new(&dir)) {
             Ok(repos) => {
                 println!("Serving repositories:");
-                let local_ip = local_ip().unwrap_or(IpAddr::from([0, 0, 0, 0]).into());
+                let local_ip = local_ip().unwrap_or(IpAddr::from([0, 0, 0, 0]));
                 for repo in repos {
                     println!("http://{:?}:{}/{}", local_ip, port, repo);
                 }
