@@ -15,10 +15,24 @@ Install Rust by downloading from https://www.rust-lang.org
 After installing Rust, run by executing:
 
 ```sh
-cargo run -- init repo_name.git
+cargo run -- init <repo_name.git>
 # or
-cargo run -- serve -p <port> -d <root_dir> -a <ipv4_addr>
+cargo run -- serve <root_dir> -p <port> -a <ipv4_addr>
+# or
+cargo run -- set-head <repo_path> <branch>
 ```
+
+## Commands
+
+- `serve [PATH]` - Serves Git repositories inside of a specified directory (defaults to current directory)
+- `init <REPO_NAME>` - Initializes a Git repository in the specified path
+- `set-head <REPOSITORY> <BRANCH>` - Sets the HEAD branch for a repository
+
+## Options for `serve`
+
+- `-p, --port <PORT>` - Port number (default: 5005)
+- `-a, --addr <ADDR>` - IPv4 address (default: 0.0.0.0)
+- `--no-timeout` - Disable server timeout (not recommended)
 
 ## Build
 
