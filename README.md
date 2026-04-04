@@ -10,6 +10,26 @@ Serves a Git bare repository over local LAN using an HTTP server
 
 Install Rust by downloading from https://www.rust-lang.org
 
+## Install
+
+To install as a crate, just run:
+
+```sh
+cargo install git-local-server
+```
+
+Alternatively, to install from source:
+
+```sh
+cargo install --path .
+```
+
+And then, it will be available on your path:
+
+```sh
+git-local-server serve
+```
+
 ## Run
 
 After installing Rust, run by executing:
@@ -62,24 +82,4 @@ Name-mapped artifacts can be generated in `target/artifacts` using:
 
 ```sh
 just generate-assets
-```
-
-## Install
-
-To install as a crate, just run:
-
-```sh
-cargo install git-local-server
-```
-
-Alternatively, to install from source:
-
-```sh
-cargo install --path .
-```
-
-And then, it will be available on your path:
-
-```sh
-git-local-server serve
 ```
