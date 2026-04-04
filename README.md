@@ -39,23 +39,40 @@ cargo run -- set-head <repo_path> <branch>
 To build, use `just`:
 
 ```sh
-just <recipe_name> # e.g. just build-linux-x86_64 to build a Linux x86_64 target
+just build <target> # e.g. just build x86_64-unknown-linux-musl
 ```
 
-Available build recipes:
-- `just build-linux-aarch64` - Build for Linux aarch64 (ARM64)
-- `just build-linux-x86_64` - Build for Linux x86_64
-- `just build-macos-aarch64` - Build for macOS aarch64 (Apple Silicon)
-- `just build-macos-x86_64` - Build for macOS x86_64 (Intel)
-- `just build-windows-x86_64` - Build for Windows x86_64
+Example of rustup build targets:
+- `aarch64-apple-darwin` (macOS Apple Silicon)
+- `x86_64-apple-darwin` (macOS Intel)
+- `aarch64-unknown-linux-musl` (Linux ARM64)
+- `x86_64-unknown-linux-musl` (Linux x86_64)
+- `x86_64-unknown-freebsd` (FreeBSD x86_64)
+- `x86_64-pc-windows-gnu` (Windows x86_64)
 
-The release targets will be statically built and output files will be generated
-in `target/<platform>/release/git-local-server` (for Unix) or
-`target/<platform>/release/git-local-server.exe` (for Windows)
+You can also build all default targets at once:
+
+```sh
+just build-all
+```
+
+The release targets will be statically built using `cargo-zigbuild` and output
+files will be generated in `target/<target>/release/git-local-server`.
+Name-mapped artifacts can be generated in `target/artifacts` using:
+
+```sh
+just generate-assets
+```
 
 ## Install
 
 To install as a crate, just run:
+
+```sh
+cargo install git-local-server
+```
+
+Alternatively, to install from source:
 
 ```sh
 cargo install --path .
