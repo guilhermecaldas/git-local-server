@@ -11,7 +11,6 @@ dav-server = { version = "0.11.0", features = ["warp-compat"] }
 gix = "0.81.0"
 indicatif = "0.18.4"
 local-ip-address = "0.6.3"
-openssl = { version = "0.10.70", features = ["vendored"] }
 tokio = { version = "1.0", features = ["full"] }
 warp = "0.3.7"
 
@@ -21,6 +20,6 @@ tempfile = "3.27.0"
 [profile.release]
 opt-level = 3
 strip = true
-lto = true
+lto = "fat"
 panic = "abort"
 codegen-units = 1
